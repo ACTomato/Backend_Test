@@ -1,0 +1,97 @@
+Задание 1
+Есть таблица A с тремя колонками B,C,D. Типы колонок - varchar2(10). В таблице нет никаких индексов, констрейнтов. Необходимо написать наиболее оптимизированный скрипт удаления в таблице дублей (повторений всех трех колонок). Результат удаления скрипта - в таблице должны остаться только неповторяющиеся записи.
+
+CREATE TABLE copy_A AS
+SELECT DISTINCT B, C, D
+FROM A;
+DELETE FROM A;
+INSERT INTO A (B, C, D)
+SELECT B, C, D
+FROM copy_A;
+DROP TABLE copy_A;
+
+Задание 2
+Есть две таблицы A и B. В каждой таблице есть колонка C. Составьте запрос так, чтобы результатом запроса стала выборка непересекающееся множество значений колонки C из таблиц А и B.
+
+SELECT A.C
+FROM A
+LEFT JOIN B ON A.C=B.C
+WHERE B.C IS NULL
+
+UNION
+
+SELECT B.C
+FROM B
+LEFT JOIN A ON B.C=A.C
+WHERE A.C IS NULL;
+
+Задание 3
+Создайте структуру базы данных для решения следующей задачи: У управляющей компании стоит задача создать реестр квартир и жильцов дома. при этом понимать в каком подьезде и на каком этаже находится квартира. количество квартир на этажах не всегда одинаковое. Количество квартир 1471, подьездов 7, этажей в доме 17. Для квартир необходимо знать площадь и количество прописанных жильцов
+
+https://drive.google.com/file/d/1WDaebE4EsOm2pA_fHOg3rKmrZ5uojR5_/view?usp=sharing - ссылка на диаграмму.
+
+Если рассматривать один дом, то база данных будет состоять из трех сущностей:
+
+1. Подъезд:
+
+   1)id //primary key
+   
+   2)entranceNumber //номер подъезда
+
+
+2. Этаж:
+
+   1)id //primary key, для нумерация можно было оставить только id, однако возможно наличие цокольного этажа, поэтому лучше добавить строку с номером
+
+   2)floorNumber //номер этажа
+
+
+3. Квартира:
+
+   1)id //primary key, для нумерация можно было оставить только id, однако ввиду возможных ошибок, решил, что строка с номером квартиры необходима
+
+   2)square //площадь
+
+   3)flatNumber //номер квартиры
+
+   4)residentsNumber //кол-во жителей
+
+   5)floorId //foreign key из сущности Этаж, номер этажа
+
+   6)entranceId //foreign key из сущности Подъезд, номер подъезда
+
+
+Задание 4
+Есть массив заказов orders, в котором каждый заказ — это объект {id, status, deliveryDate, items}, где items – массив объектов {productName, cost, quantity}. Нужно написать функцию, которая:
+•	Отфильтрует все заказы со статусом "delivered".
+•	Посчитает общую стоимость всех товаров в каждом заказе.
+•	Сгруппирует заказы по месяцам доставки.
+
+Итого функция должна вернуть объект, где ключ – это название месяца (в формате "January", "February", и т.д.), а значение – это общая стоимость доставленных заказов за этот месяц.
+
+const calc = function (orders) {
+    const filteredOrders = {}
+    for (let i = 0; i < orders.length; i++) {
+        if(orders[i].status === 'delivered') {
+            let month = orders[i].deliveryDate.split('-')[1];
+            const months = ['January', 'February', 'March', 'April',
+                'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
+            ]
+            month = months[month - 1];
+            
+            for (let c = 0; c < orders[i].items.length; c++) {
+                let amount = 0;
+                amount += orders[i].items[c].price * orders[i].items[c].quantity; 
+                if (!filteredOrders[month]) {
+                    filteredOrders[month] = amount
+                } else {
+                    filteredOrders[month] += amount;
+                }
+            }  
+        } 
+    }
+    return filteredOrders;
+};
+
+
+
