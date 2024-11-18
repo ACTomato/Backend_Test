@@ -1,0 +1,14 @@
+Задание 2
+Есть две таблицы A и B. В каждой таблице есть колонка C. Составьте запрос так, чтобы результатом запроса стала выборка непересекающееся множество значений колонки C из таблиц А и B.
+
+SELECT A.C
+FROM A
+LEFT JOIN B ON A.C=B.C
+WHERE B.C IS NULL
+
+UNION
+
+SELECT B.C
+FROM B
+LEFT JOIN A ON B.C=A.C
+WHERE A.C IS NULL;
